@@ -9,12 +9,19 @@ library(googledrive)
 library(googlesheets4)
 library(spotifyr)
 library(DBI)
-library(here)
 
-source("R/fct_helpers.R")
+c <- commandArgs(trailingOnly = TRUE)
+
+# get spotify ID, secret, and working directory from cron script
+# I specified the working directory outside of this script because cron copies this script elsewhere and packages like "here" get confused
+spotify_id <- c[1]
+spotify_secret <- c[2]
+wd <- c[3]
+
+source(file.path(wd, "R", "fct_helpers.R"))
 
 # track and artist info DB
-sp_con <- DBI::dbConnect(RSQLite::SQLite(), here("data", "spotify.db"))
+sp_con <- DBI::dbConnect(RSQLite::SQLite(), file.path(wd, "data", "spotify.db"))
 
 # IFTTT writes a new google sheet every 2000 rows, so I need to detect all sheets related to the saved tracks
 file_ids <- drive_ls(path = "IFTTT/Spotify", pattern = "played_tracks") |>
@@ -52,7 +59,10 @@ if (nrow(s) > 0){
   ###Sys.setenv(SPOTIFY_CLIENT_SECRET = 'xxxxxxxx')
 
   ## get access token
-  access_token <- get_spotify_access_token()
+  access_token <- get_spotify_access_token(
+    client_id = spotify_id,
+    client_secret = spotify_secret
+  )
 
   ## get track audio features
 
@@ -138,8 +148,15 @@ if (nrow(s) > 0){
 
   # write track and artist info to db table
   DBI::dbAppendTable(sp_con, "track_info", si)
-  DBI::dbAppendTable(sp_con, "artist_info", gi)
-  DBI::dbAppendTable(sp_con, "artist_images", im)
+
+  if(nrow(gi) > 0) {
+    DBI::dbAppendTable(sp_con, "artist_info", gi)
+  } else print("No new artists")
+
+  if(nrow(im) > 0) {
+    DBI::dbAppendTable(sp_con, "artist_images", im)
+  } else print("No new artist images")
+
 
 } else print("No new tracks listened to")
 

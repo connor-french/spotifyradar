@@ -7,6 +7,7 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
 <!-- badges: end -->
 
 `spotifyradar` is a shiny app that continuously summarizes my listening
@@ -18,5 +19,59 @@ an explorable Shiny app.
 
 In addition to my interest in my own listening habits outside of
 Spotify’s end of year summary, I’m using this app as a tool to learn how
-to maintain code and data that is updated regularly. In addition, I’m
-practicing my SQL skills with data management and extraction.
+to stream data and maintain code and data that is updated regularly. In
+addition, I’m practicing my SQL skills with data management and
+extraction.
+
+## Setup
+
+### Prior to installation
+
+Before installing `spotifyradar`, you need to create an IFTTT account at
+[ifttt.com](ifttt.com). Then, add this applet to your account:
+[spotifyradar](https://ifttt.com/applets/UzkBGfpb-if-a-recently-played-track-then-add-row-to-my-google-drive-spreadsheet).
+The applet monitors your Spotify plays and updates a Google Sheet
+regularly with some basic info about the track. Your `spotifyradar`
+summary gets more interesting as you collect more data about your
+listening.
+
+In addition, you need to set up a [Spotify Dev
+account](https://developer.spotify.com/my-applications/#!/applications).
+`spotifyradar` uses the [spotifyr](https://www.rcharlie.com/spotifyr/)
+wrapper around the Spotify API to obtain more info about tracks and
+artists, which requires Dev access.
+
+After setting up your Dev account, you need to add your
+`SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` to a `.Renviron`. The
+easiest way to do this is with the [usethis](https://usethis.r-lib.org/)
+function `usethis::edit_r_environ()`, which opens the .Renviron file and
+allows you to edit the file directly. Alternatively, you can create a
+blank `.Renviron` file in the project directory and use your favorite
+text editor to edit the file. The environmental variables should be
+specified in the `.Renviron` file like this:
+
+    SPOTIFY_CLIENT_ID='xxxxxxxx'
+    SPOTIFY_CLIENT_SECRET='xxxxxxx'
+
+where `xxxxxxxx` contains your ID or SECRET. Restart R to make them
+available.
+
+### Installation
+
+To install `spotifyradar`:
+
+``` r
+# if you don't have the remotes package already
+install.packages(remotes)
+
+remotes::install_github("connor-french/spotifyradar")
+```
+
+### Cron scheduling
+
+`spotifyradar` uses `cronR` to schedule regular downloads of your
+Spotify data. The `cron_setup.R` script in the `R` folder is included as
+a convenience to setup the data streaming. Run this script and your data
+streaming is good to go! For this to work, you need to set your
+`SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` environment variables.
+See the **Prior to installation** section for instructions.

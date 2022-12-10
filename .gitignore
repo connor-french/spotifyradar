@@ -42,3 +42,6 @@ vignettes/*.pdf
 # spotify database
 R/spotify.db
 
+# log from get_data scheduling
+R/get_data.log
+
